@@ -28,6 +28,7 @@ func main() {
 	r := gin.Default()
 	r.GET("/health", handlers.Health)
 	r.GET("/customers", handlers.GetCustomers)
+	r.GET("/orders", handlers.GetOrders)
 
 	fmt.Printf("🚀 Server running on port %s\n", port)
 	err = r.Run(":" + port)
