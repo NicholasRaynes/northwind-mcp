@@ -29,6 +29,9 @@ func main() {
 	r.GET("/health", handlers.Health)
 	r.GET("/customers", handlers.GetCustomers)
 	r.GET("/orders", handlers.GetOrders)
+	r.GET("/products", handlers.GetProducts)
+	r.GET("/suppliers", handlers.GetSuppliers)
+	r.GET("/orders/details", handlers.GetOrderDetails)
 
 	fmt.Printf("🚀 Server running on port %s\n", port)
 	err = r.Run(":" + port)
