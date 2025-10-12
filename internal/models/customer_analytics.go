@@ -29,3 +29,14 @@ type CustomerLTV struct {
 	OrderCount  int     `json:"order_count" db:"order_count"`
 	AvgOrder    float64 `json:"avg_order" db:"avg_order"`
 }
+
+type CustomerRetention struct {
+	CustomerID     string `json:"customer_id" db:"customer_id"`
+	CompanyName    string `json:"company_name" db:"company_name"`
+	Country        string `json:"country" db:"country"`
+	FirstOrderYear int    `json:"first_order_year" db:"first_order_year"`
+	LastOrderYear  int    `json:"last_order_year" db:"last_order_year"`
+	OrderCount     int    `json:"order_count" db:"order_count"`
+	ActiveYears    int    `json:"active_years" db:"active_years"`
+	RepeatCustomer bool   `json:"repeat_customer" db:"repeat_customer"`
+}
