@@ -20,3 +20,14 @@ type SupplierPerformance struct {
 	AveragePrice float64 `json:"average_price" db:"average_price"`
 	TopCategory  string  `json:"top_category" db:"top_category"`
 }
+
+type InventoryStatus struct {
+	ProductID    int    `json:"product_id" db:"product_id"`
+	ProductName  string `json:"product_name" db:"product_name"`
+	SupplierName string `json:"supplier_name" db:"supplier_name"`
+	CategoryName string `json:"category_name" db:"category_name"`
+	UnitsInStock int    `json:"units_in_stock" db:"units_in_stock"`
+	ReorderLevel int    `json:"reorder_level" db:"reorder_level"`
+	Discontinued bool   `json:"discontinued" db:"discontinued"`
+	NeedsReorder bool   `json:"needs_reorder" db:"needs_reorder"`
+}
