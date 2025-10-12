@@ -38,6 +38,7 @@ func main() {
 	r.GET("/summary/sales-by-year", handlers.GetSalesByYear)
 	r.GET("/summary/sales-by-shipper", handlers.GetSalesByShipper)
 	r.GET("/analytics/top-customers", handlers.GetTopCustomers)
+	r.GET("/analytics/customer-orders", handlers.GetCustomerOrders)
 
 	fmt.Printf("🚀 Server running on port %s\n", port)
 	err = r.Run(":" + port)
