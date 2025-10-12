@@ -46,6 +46,7 @@ func main() {
 	r.GET("/analytics/inventory-status", handlers.GetInventoryStatus)
 	r.GET("/analytics/employee-performance", handlers.GetEmployeePerformance)
 	r.GET("/analytics/shipping-costs", handlers.GetShippingCosts)
+	r.GET("/analytics/delivery-times", handlers.GetDeliveryTimes)
 
 	fmt.Printf("🚀 Server running on port %s\n", port)
 	err = r.Run(":" + port)

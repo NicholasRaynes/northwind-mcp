@@ -19,3 +19,15 @@ type ShippingCosts struct {
 	TopDestination string  `json:"top_destination" db:"top_destination"`
 	Year           *int    `json:"year,omitempty" db:"year"`
 }
+
+type DeliveryTimes struct {
+	ShipperName     string  `json:"shipper_name" db:"shipper_name"`
+	EmployeeName    string  `json:"employee_name" db:"employee_name"`
+	TotalOrders     int     `json:"total_orders" db:"total_orders"`
+	AvgDeliveryDays float64 `json:"avg_delivery_days" db:"avg_delivery_days"`
+	MaxDeliveryDays float64 `json:"max_delivery_days" db:"max_delivery_days"`
+	MinDeliveryDays float64 `json:"min_delivery_days" db:"min_delivery_days"`
+	LateShipments   int     `json:"late_shipments" db:"late_shipments"`
+	OnTimeRate      float64 `json:"on_time_rate" db:"on_time_rate"`
+	Year            *int    `json:"year,omitempty" db:"year"`
+}
