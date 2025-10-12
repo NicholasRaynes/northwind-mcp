@@ -18,3 +18,14 @@ type CustomerOrderSummary struct {
 	ShippedDate string  `json:"shipped_date" db:"shipped_date"`
 	Country     string  `json:"country" db:"country"`
 }
+
+type CustomerLTV struct {
+	CustomerID  string  `json:"customer_id" db:"customer_id"`
+	CompanyName string  `json:"company_name" db:"company_name"`
+	Country     string  `json:"country" db:"country"`
+	TotalSales  float64 `json:"total_sales" db:"total_sales"`
+	FirstOrder  string  `json:"first_order" db:"first_order"`
+	LastOrder   string  `json:"last_order" db:"last_order"`
+	OrderCount  int     `json:"order_count" db:"order_count"`
+	AvgOrder    float64 `json:"avg_order" db:"avg_order"`
+}
