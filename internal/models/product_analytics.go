@@ -9,3 +9,14 @@ type TopProduct struct {
 	TotalRevenue float64 `json:"total_revenue" db:"total_revenue"`
 	AveragePrice float64 `json:"average_price" db:"average_price"`
 }
+
+type SupplierPerformance struct {
+	SupplierID   int     `json:"supplier_id" db:"supplier_id"`
+	SupplierName string  `json:"supplier_name" db:"supplier_name"`
+	Country      string  `json:"country" db:"country"`
+	ProductCount int     `json:"product_count" db:"product_count"`
+	UnitsSold    int     `json:"units_sold" db:"units_sold"`
+	TotalRevenue float64 `json:"total_revenue" db:"total_revenue"`
+	AveragePrice float64 `json:"average_price" db:"average_price"`
+	TopCategory  string  `json:"top_category" db:"top_category"`
+}
