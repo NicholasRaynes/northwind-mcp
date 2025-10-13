@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: nr-northwind-mcp        # must match your Azure App Service name
-  GO_VERSION: '1.22'                         # Go version used for build
+  AZURE_WEBAPP_NAME: nr-northwind-mcp
+  GO_VERSION: '1.22'
 
 jobs:
   build-and-deploy:
@@ -36,9 +36,15 @@ jobs:
           echo "Checking for built binary..."
           ls -lh ./build
 
+      - name: Zip Go binary for deployment
+        run: |
+          cd build
+          zip -r ../deploy.zip server
+          cd ..
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: ./build/server
+          package: ./deploy.zip
