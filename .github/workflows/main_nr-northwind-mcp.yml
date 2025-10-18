@@ -1,0 +1,50 @@
+name: Build and Deploy Go API to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: nr-northwind-mcp
+  GO_VERSION: '1.22'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Build Go binary
+        run: |
+          mkdir -p ./build
+          cd cmd/api
+          go mod tidy
+          go build -o ../../build/server
+          cd ../..
+
+      - name: Verify Go binary exists
+        run: |
+          echo "Checking for built binary..."
+          ls -lh ./build
+
+      - name: Zip Go binary for deployment
+        run: |
+          cd build
+          zip -r ../deploy.zip server
+          cd ..
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: ./deploy.zip
