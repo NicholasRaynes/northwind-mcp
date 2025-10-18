@@ -3,6 +3,7 @@ package models
 type APISchema struct {
 	OpenAPI string             `json:"openapi"`
 	Info    APIInfo            `json:"info"`
+	Tags    []APITag           `json:"tags,omitempty"`
 	Paths   map[string]APIPath `json:"paths"`
 }
 
@@ -12,11 +13,17 @@ type APIInfo struct {
 	Description string `json:"description"`
 }
 
+type APITag struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
 type APIPath struct {
 	Get *APIEndpoint `json:"get,omitempty"`
 }
 
 type APIEndpoint struct {
+	Tags        []string               `json:"tags,omitempty"`
+	OperationID string                 `json:"operationId,omitempty"`
 	Summary     string                 `json:"summary"`
 	Description string                 `json:"description"`
 	Parameters  []APIParameter         `json:"parameters,omitempty"`
@@ -26,9 +33,9 @@ type APIEndpoint struct {
 type APIParameter struct {
 	Name        string `json:"name"`
 	In          string `json:"in"`
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
-	SchemaType  string `json:"type"`
+	Description string `json:"description,omitempty"`
+	Required    bool   `json:"required,omitempty"`
+	SchemaType  string `json:"schemaType"`
 }
 
 type APIResponse struct {
