@@ -1,0 +1,351 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Northwind MCP API",
+    "version": "1.0.0",
+    "description": "Comprehensive OpenAPI specification for the Northwind MCP Server, exposing business analytics, summaries, and entity data for Copilot Studio integration."
+  },
+  "servers": [
+    {
+      "url": "https://nr-northwind-mcp-fhauhhduczeea6ft.canadacentral-01.azurewebsites.net",
+      "description": "Northwind MCP Production API"
+    }
+  ],
+  "tags": [
+    { "name": "Core", "description": "Base endpoints for customers, orders, and products." },
+    { "name": "Orders", "description": "Endpoints related to orders, details, shippers, and employees." },
+    { "name": "Products", "description": "Endpoints for products, suppliers, categories, and inventory." },
+    { "name": "Summaries", "description": "Aggregated business summaries by country, employee, year, and shipper." },
+    { "name": "Analytics", "description": "High-level analytical insights and KPIs." },
+    { "name": "Performance", "description": "Operational metrics for delivery, employees, and shipping." },
+    { "name": "Financial", "description": "Endpoints focusing on revenue, sales, lifetime value, and costs." }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Core"],
+        "operationId": "checkHealth",
+        "summary": "Health Check",
+        "description": "Verify MCP server and database connectivity.",
+        "responses": {
+          "200": {
+            "description": "Server health status.",
+            "content": { "application/json": { "example": { "status": "ok", "message": "Northwind MCP server is running!" } } }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "tags": ["Core", "Financial"],
+        "operationId": "getCustomers",
+        "summary": "Get Customers",
+        "description": "Retrieve all customers, including company names, cities, and contact details.",
+        "responses": {
+          "200": {
+            "description": "List of customers.",
+            "content": {
+              "application/json": {
+                "example": [
+                  { "customer_id": "ALFKI", "company_name": "Alfreds Futterkiste", "city": "Berlin", "country": "Germany" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["Core", "Orders", "Financial"],
+        "operationId": "getOrders",
+        "summary": "Get Orders",
+        "description": "Retrieve all orders with customer, employee, shipper, and date information.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order year" }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of orders.",
+            "content": { "application/json": { "example": [{ "order_id": 10248, "customer_id": "VINET", "order_date": "1996-07-04" }] } }
+          }
+        }
+      }
+    },
+    "/orders/details": {
+      "get": {
+        "tags": ["Orders", "Products"],
+        "operationId": "getOrderDetails",
+        "summary": "Get Order Details",
+        "description": "Retrieve product-level order details including quantity, price, and discounts.",
+        "parameters": [
+          { "name": "order_id", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order ID" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details list.",
+            "content": {
+              "application/json": {
+                "example": [{ "order_id": 10248, "product_id": 11, "unit_price": 14.0, "quantity": 12, "discount": 0.0 }]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Core", "Products"],
+        "operationId": "getProducts",
+        "summary": "Get Products",
+        "description": "Retrieve products with supplier, category, price, and stock information.",
+        "parameters": [
+          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" },
+          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products.",
+            "content": {
+              "application/json": {
+                "example": [{ "product_id": 1, "product_name": "Chai", "category": "Beverages", "unit_price": 18.0, "units_in_stock": 39 }]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "tags": ["Products", "Analytics"],
+        "operationId": "getSuppliers",
+        "summary": "Get Suppliers",
+        "description": "Retrieve all supplier information, including contact details and country.",
+        "responses": {
+          "200": {
+            "description": "List of suppliers.",
+            "content": {
+              "application/json": {
+                "example": [{ "supplier_id": 1, "company_name": "Exotic Liquids", "country": "UK", "contact_name": "Charlotte Cooper" }]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/summary/sales-by-country": {
+      "get": {
+        "tags": ["Summaries", "Financial"],
+        "operationId": "getSalesByCountry",
+        "summary": "Sales by Country",
+        "description": "Aggregate total sales grouped by customer country.",
+        "responses": {
+          "200": {
+            "description": "Sales totals by country.",
+            "content": { "application/json": { "example": [{ "country": "USA", "total_sales": 12345.67 }] } }
+          }
+        }
+      }
+    },
+    "/summary/sales-by-category": {
+      "get": {
+        "tags": ["Summaries", "Products"],
+        "operationId": "getSalesByCategory",
+        "summary": "Sales by Category",
+        "description": "Total revenue aggregated by product category.",
+        "responses": {
+          "200": {
+            "description": "Sales totals by category.",
+            "content": { "application/json": { "example": [{ "category": "Beverages", "total_sales": 23456.78 }] } }
+          }
+        }
+      }
+    },
+    "/summary/sales-by-employee": {
+      "get": {
+        "tags": ["Summaries", "Performance"],
+        "operationId": "getSalesByEmployee",
+        "summary": "Sales by Employee",
+        "description": "Total sales and order counts grouped by employee.",
+        "responses": {
+          "200": {
+            "description": "Sales totals by employee.",
+            "content": { "application/json": { "example": [{ "employee": "Nancy Davolio", "total_sales": 89000.5 }] } }
+          }
+        }
+      }
+    },
+    "/summary/sales-by-year": {
+      "get": {
+        "tags": ["Summaries", "Financial"],
+        "operationId": "getSalesByYear",
+        "summary": "Sales by Year",
+        "description": "Annual sales totals across all countries and categories.",
+        "responses": {
+          "200": {
+            "description": "Yearly sales summary.",
+            "content": { "application/json": { "example": [{ "year": 1997, "total_sales": 345678.9 }] } }
+          }
+        }
+      }
+    },
+    "/summary/sales-by-shipper": {
+      "get": {
+        "tags": ["Summaries", "Orders"],
+        "operationId": "getSalesByShipper",
+        "summary": "Sales by Shipper",
+        "description": "Total sales grouped by freight company.",
+        "responses": {
+          "200": {
+            "description": "Sales totals by shipper.",
+            "content": { "application/json": { "example": [{ "shipper": "Speedy Express", "total_sales": 56789.12 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/top-customers": {
+      "get": {
+        "tags": ["Analytics", "Financial"],
+        "operationId": "getTopCustomers",
+        "summary": "Top Customers",
+        "description": "Retrieve top customers ranked by total revenue.",
+        "responses": {
+          "200": {
+            "description": "Top customers list.",
+            "content": { "application/json": { "example": [{ "customer": "Alfreds Futterkiste", "total_sales": 50000 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/customer-orders": {
+      "get": {
+        "tags": ["Analytics", "Orders"],
+        "operationId": "getCustomerOrders",
+        "summary": "Customer Orders",
+        "description": "Detailed order history per customer.",
+        "parameters": [
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer order details.",
+            "content": { "application/json": { "example": [{ "customer_id": "VINET", "orders": 15 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/customer-ltv": {
+      "get": {
+        "tags": ["Analytics", "Financial"],
+        "operationId": "getCustomerLTV",
+        "summary": "Customer Lifetime Value",
+        "description": "Total lifetime revenue per customer.",
+        "responses": {
+          "200": {
+            "description": "LTV data.",
+            "content": { "application/json": { "example": [{ "customer": "Around the Horn", "ltv": 45000 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/customer-retention": {
+      "get": {
+        "tags": ["Analytics", "Performance"],
+        "operationId": "getCustomerRetention",
+        "summary": "Customer Retention",
+        "description": "Measures repeat customers and retention rates.",
+        "responses": {
+          "200": {
+            "description": "Retention metrics.",
+            "content": { "application/json": { "example": [{ "year": 1998, "retention_rate": 0.82 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/top-products": {
+      "get": {
+        "tags": ["Analytics", "Products"],
+        "operationId": "getTopProducts",
+        "summary": "Top Products",
+        "description": "Top-selling products by total revenue and units sold.",
+        "responses": {
+          "200": {
+            "description": "Top products data.",
+            "content": { "application/json": { "example": [{ "product": "Chai", "sales": 20000.5 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/supplier-performance": {
+      "get": {
+        "tags": ["Analytics", "Products", "Performance"],
+        "operationId": "getSupplierPerformance",
+        "summary": "Supplier Performance",
+        "description": "Supplier contribution by revenue and efficiency.",
+        "responses": {
+          "200": {
+            "description": "Supplier performance list.",
+            "content": { "application/json": { "example": [{ "supplier": "Exotic Liquids", "sales": 12345.67 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/inventory-status": {
+      "get": {
+        "tags": ["Analytics", "Products", "Performance"],
+        "operationId": "getInventoryStatus",
+        "summary": "Inventory Status",
+        "description": "Product stock levels, reorder needs, and discontinued items.",
+        "responses": {
+          "200": {
+            "description": "Inventory overview.",
+            "content": { "application/json": { "example": [{ "product": "Chai", "units_in_stock": 39, "discontinued": false }] } }
+          }
+        }
+      }
+    },
+    "/analytics/employee-performance": {
+      "get": {
+        "tags": ["Analytics", "Performance"],
+        "operationId": "getEmployeePerformance",
+        "summary": "Employee Performance",
+        "description": "Rank employees by sales totals and order count.",
+        "responses": {
+          "200": {
+            "description": "Employee performance list.",
+            "content": { "application/json": { "example": [{ "employee": "Nancy Davolio", "total_sales": 89000.5 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/shipping-costs": {
+      "get": {
+        "tags": ["Analytics", "Orders", "Financial"],
+        "operationId": "getShippingCosts",
+        "summary": "Shipping Costs",
+        "description": "Freight cost and order volume per shipping company.",
+        "responses": {
+          "200": {
+            "description": "Shipping cost data.",
+            "content": { "application/json": { "example": [{ "shipper": "United Package", "total_freight": 12000 }] } }
+          }
+        }
+      }
+    },
+    "/analytics/delivery-times": {
+      "get": {
+        "tags": ["Analytics", "Performance", "Orders"],
+        "operationId": "getDeliveryTimes",
+        "summary": "Delivery Times",
+        "description": "Average delivery days, late shipments, and on-time rate by shipper or employee.",
+        "responses": {
+          "200": {
+            "description": "Delivery performance metrics.",
+            "content": { "application/json": { "example": [{ "shipper": "Speedy Express", "avg_days": 3.5, "on_time_rate": 0.92 }] } }
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
