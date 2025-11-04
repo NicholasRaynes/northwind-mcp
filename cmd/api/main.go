@@ -46,7 +46,6 @@ func main() {
 	r.GET("/analytics/employee-performance", handlers.GetEmployeePerformance)
 	r.GET("/analytics/shipping-costs", handlers.GetShippingCosts)
 	r.GET("/analytics/delivery-times", handlers.GetDeliveryTimes)
-	r.GET("/meta/schema", handlers.GetMetaSchema)
 
 	err = r.Run(":" + port)
 	if err != nil {
