@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nicholasraynes/northwind-mcp/internal/db"
-	"github.com/nicholasraynes/northwind-mcp/internal/models"
+	"github.com/nicholasraynes/northwind-api/internal/db"
+	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
 // GET /customers

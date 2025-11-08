@@ -1,4 +1,4 @@
-module github.com/nicholasraynes/northwind-mcp
+module github.com/nicholasraynes/northwind-api
 
 go 1.24.3
 

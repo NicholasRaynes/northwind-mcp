@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nicholasraynes/northwind-mcp/internal/db"
-	"github.com/nicholasraynes/northwind-mcp/internal/models"
+	"github.com/nicholasraynes/northwind-api/internal/db"
+	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
 // GET /analytics/inventory-status?below_reorder=true&supplier=Exotic%20Liquids

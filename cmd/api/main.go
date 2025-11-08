@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"github.com/nicholasraynes/northwind-mcp/internal/db"
-	"github.com/nicholasraynes/northwind-mcp/internal/handlers"
+	"github.com/nicholasraynes/northwind-api/internal/db"
+	"github.com/nicholasraynes/northwind-api/internal/handlers"
 )
 
 func main() {
