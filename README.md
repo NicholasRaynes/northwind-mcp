@@ -1,5 +1,5 @@
 # ☁️ northwind-api
-A modern Go + PostgreSQL REST API for the Northwind dataset, providing structured access to customers, orders, products, suppliers, and analytical summaries.  
+A Go + PostgreSQL REST API for the Northwind dataset, providing structured access to customers, orders, products, suppliers, and analytical summaries.  
 This API powers Power Automate REST API connectors for Copilot Studio agents, and MCP-integrated copilots (like GitHub Copilot Chat via `northwind-mcp-layer`).
 
 ## Architecture Overview
