@@ -25,9 +25,10 @@ northwind-api/
 | `GET`  | `/analytics/top-customers`  | Top customers by revenue | `limit=10`, `country=USA`        |
 
 ## Tech Stack
-Language: Go 1.23+
-Framework: Gin
-Database: PostgreSQL (via Supabase)
+- Language: Go 1.23+
+- Framework: Gin
+- Database: PostgreSQL (via Supabase)
+- Deployment: Azure App Service
 
 ## Related Project
 https://github.com/nicholasraynes/northwind-mcp-layer
