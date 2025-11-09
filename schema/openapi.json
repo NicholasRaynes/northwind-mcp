@@ -41,6 +41,11 @@
         "operationId": "getCustomers",
         "summary": "Get Customers",
         "description": "Retrieve all customers, including company names, cities, and contact details.",
+        "parameters": [
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by order year" },
+          { "name": "city", "in": "query", "schema": { "type": "string" }, "description": "Filter by city" },
+          { "name": "id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
+        ],
         "responses": {
           "200": {
             "description": "List of customers.",
@@ -62,7 +67,10 @@
         "summary": "Get Orders",
         "description": "Retrieve all orders with customer, employee, shipper, and date information.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order year" },
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "employee", "in": "query", "schema": { "type": "string" }, "description": "Filter by employee" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer country" }
         ],
         "responses": {
           "200": {
@@ -79,7 +87,9 @@
         "summary": "Get Order Details",
         "description": "Retrieve product-level order details including quantity, price, and discounts.",
         "parameters": [
-          { "name": "order_id", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order ID" }
+          { "name": "order_id", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order ID" },
+          { "name": "product", "in": "query", "schema": { "type": "string" }, "description": "Filter by product" },
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
         ],
         "responses": {
           "200": {
@@ -101,7 +111,8 @@
         "description": "Retrieve products with supplier, category, price, and stock information.",
         "parameters": [
           { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" },
-          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" }
+          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" },
+          { "name": "name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" }
         ],
         "responses": {
           "200": {
@@ -121,6 +132,10 @@
         "operationId": "getSuppliers",
         "summary": "Get Suppliers",
         "description": "Retrieve all supplier information, including contact details and country.",
+        "parameters": [
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
+          { "name": "company", "in": "query", "schema": { "type": "string" }, "description": "Filter by company" }
+        ],
         "responses": {
           "200": {
             "description": "List of suppliers.",
@@ -139,6 +154,9 @@
         "operationId": "getSalesByCountry",
         "summary": "Sales by Country",
         "description": "Aggregate total sales grouped by customer country.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Sales totals by country.",
@@ -153,6 +171,9 @@
         "operationId": "getSalesByCategory",
         "summary": "Sales by Category",
         "description": "Total revenue aggregated by product category.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Sales totals by category.",
@@ -167,6 +188,9 @@
         "operationId": "getSalesByEmployee",
         "summary": "Sales by Employee",
         "description": "Total sales and order counts grouped by employee.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Sales totals by employee.",
@@ -195,6 +219,9 @@
         "operationId": "getSalesByShipper",
         "summary": "Sales by Shipper",
         "description": "Total sales grouped by freight company.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Sales totals by shipper.",
@@ -209,6 +236,11 @@
         "operationId": "getTopCustomers",
         "summary": "Top Customers",
         "description": "Retrieve top customers ranked by total revenue.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Top customers list.",
@@ -224,7 +256,8 @@
         "summary": "Customer Orders",
         "description": "Detailed order history per customer.",
         "parameters": [
-          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
         ],
         "responses": {
           "200": {
@@ -240,6 +273,10 @@
         "operationId": "getCustomerLTV",
         "summary": "Customer Lifetime Value",
         "description": "Total lifetime revenue per customer.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" }
+        ],
         "responses": {
           "200": {
             "description": "LTV data.",
@@ -254,6 +291,9 @@
         "operationId": "getCustomerRetention",
         "summary": "Customer Retention",
         "description": "Measures repeat customers and retention rates.",
+        "parameters": [
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Retention metrics.",
@@ -268,6 +308,11 @@
         "operationId": "getTopProducts",
         "summary": "Top Products",
         "description": "Top-selling products by total revenue and units sold.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Top products data.",
@@ -282,6 +327,10 @@
         "operationId": "getSupplierPerformance",
         "summary": "Supplier Performance",
         "description": "Supplier contribution by revenue and efficiency.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Supplier performance list.",
@@ -296,6 +345,10 @@
         "operationId": "getInventoryStatus",
         "summary": "Inventory Status",
         "description": "Product stock levels, reorder needs, and discontinued items.",
+        "parameters": [
+          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" },
+          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" }
+        ],
         "responses": {
           "200": {
             "description": "Inventory overview.",
@@ -310,6 +363,10 @@
         "operationId": "getEmployeePerformance",
         "summary": "Employee Performance",
         "description": "Rank employees by sales totals and order count.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Employee performance list.",
@@ -324,6 +381,10 @@
         "operationId": "getShippingCosts",
         "summary": "Shipping Costs",
         "description": "Freight cost and order volume per shipping company.",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Shipping cost data.",
@@ -338,6 +399,10 @@
         "operationId": "getDeliveryTimes",
         "summary": "Delivery Times",
         "description": "Average delivery days, late shipments, and on-time rate by shipper or employee.",
+        "parameters": [
+          { "name": "group", "in": "query", "schema": { "type": "string" }, "description": "Filter by group" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+        ],
         "responses": {
           "200": {
             "description": "Delivery performance metrics.",
