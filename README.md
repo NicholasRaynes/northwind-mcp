@@ -3,6 +3,7 @@ A modern Go + PostgreSQL REST API for the Northwind dataset, providing structure
 This API powers Power Automate REST API connectors for Copilot Studio agents, and MCP-integrated copilots (like GitHub Copilot Chat via `northwind-mcp-layer`).
 
 ## Architecture Overview
+```text
 northwind-api/
 ├── cmd/
 │   └── api/               # Application entrypoint (starts the Gin HTTP server)
@@ -13,9 +14,9 @@ northwind-api/
 ├── schema/                # OpenAPI schema
 ├── go.mod / go.sum        # Go module dependencies
 └── README.md              # Project documentation
+```
 
 ## Example Endpoints
-```text
 | Method | Endpoint                    | Description              | Example Parameters               |
 | ------ | --------------------------- | ------------------------ | -------------------------------- |
 | `GET`  | `/customers`                | Retrieve customers       | `country=Germany`, `city=London` |
