@@ -30,6 +30,6 @@ northwind-api/
 - Database: PostgreSQL (via Supabase)
 - Deployment: Azure App Service
 
-## Related Project
+## Companion Project
 https://github.com/nicholasraynes/northwind-mcp-layer
 - MCP bridge that connects this API to GitHub Copilot Chat or other AI systems.
