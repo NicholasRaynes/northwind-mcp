@@ -15,6 +15,7 @@ northwind-api/
 └── README.md              # Project documentation
 
 ## Example Endpoints
+```text
 | Method | Endpoint                    | Description              | Example Parameters               |
 | ------ | --------------------------- | ------------------------ | -------------------------------- |
 | `GET`  | `/customers`                | Retrieve customers       | `country=Germany`, `city=London` |
