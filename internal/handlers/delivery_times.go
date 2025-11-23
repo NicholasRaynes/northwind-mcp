@@ -34,7 +34,7 @@ func GetDeliveryTimes(c *gin.Context) {
 		FROM orders o
 		` + joinClause
 
-	args := []interface{}{}
+	args := []any{}
 	if year != "" {
 		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $" + strconv.Itoa(len(args)+1)
 		args = append(args, year)

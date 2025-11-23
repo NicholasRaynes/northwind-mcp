@@ -22,7 +22,7 @@ func GetSalesByCategory(c *gin.Context) {
 		JOIN products p ON od.product_id = p.product_id
 		JOIN categories ca ON p.category_id = ca.category_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	if year != "" {
 		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $1"
 		args = append(args, year)

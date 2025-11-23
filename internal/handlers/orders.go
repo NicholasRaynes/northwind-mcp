@@ -43,7 +43,7 @@ func GetOrders(c *gin.Context) {
 	`
 
 	conditions := []string{}
-	args := []interface{}{}
+	args := []any{}
 
 	if customerID != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(o.customer_id) = LOWER($%d)", len(args)+1))

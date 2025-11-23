@@ -34,7 +34,7 @@ func GetProducts(c *gin.Context) {
 		JOIN categories ca ON p.category_id = ca.category_id
 	`
 	conditions := []string{}
-	args := []interface{}{}
+	args := []any{}
 
 	if category != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))

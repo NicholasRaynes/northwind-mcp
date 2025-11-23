@@ -22,7 +22,7 @@ func GetSuppliers(c *gin.Context) {
 		FROM suppliers
 	`
 	conditions := []string{}
-	args := []interface{}{}
+	args := []any{}
 
 	if country != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(country) = LOWER($%d)", len(args)+1))

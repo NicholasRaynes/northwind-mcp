@@ -20,7 +20,7 @@ func GetSalesByCountry(c *gin.Context) {
 		FROM order_details od
 		JOIN orders o ON od.order_id = o.order_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	if year != "" {
 		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $1"
 		args = append(args, year)

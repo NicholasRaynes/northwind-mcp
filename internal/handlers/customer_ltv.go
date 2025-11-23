@@ -33,7 +33,7 @@ func GetCustomerLTV(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 		JOIN customers c ON o.customer_id = c.customer_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	if country != "" {
 		query += " WHERE c.country = $1"
 		args = append(args, country)

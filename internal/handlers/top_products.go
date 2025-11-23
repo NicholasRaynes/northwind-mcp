@@ -36,7 +36,7 @@ func GetTopProducts(c *gin.Context) {
 		JOIN suppliers s ON p.supplier_id = s.supplier_id
 	`
 
-	args := []interface{}{}
+	args := []any{}
 	where := []string{}
 
 	if year != "" {

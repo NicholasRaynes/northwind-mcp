@@ -35,7 +35,7 @@ func GetOrderDetails(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 	`
 	conditions := []string{}
-	args := []interface{}{}
+	args := []any{}
 
 	if orderID != "" {
 		conditions = append(conditions, fmt.Sprintf("od.order_id = $%d", len(args)+1))

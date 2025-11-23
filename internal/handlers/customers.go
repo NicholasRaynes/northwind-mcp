@@ -24,7 +24,7 @@ func GetCustomers(c *gin.Context) {
 		FROM customers
 	`
 	conditions := []string{}
-	args := []interface{}{}
+	args := []any{}
 
 	// Apply filters dynamically
 	if id != "" {

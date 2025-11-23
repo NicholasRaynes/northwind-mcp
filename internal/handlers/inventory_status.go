@@ -30,7 +30,7 @@ func GetInventoryStatus(c *gin.Context) {
 		JOIN suppliers s ON p.supplier_id = s.supplier_id
 		JOIN categories ca ON p.category_id = ca.category_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	where := []string{}
 
 	if belowReorder {

@@ -27,7 +27,7 @@ func GetCustomerOrders(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 		JOIN customers c ON o.customer_id = c.customer_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	where := []string{}
 
 	if customerID != "" {

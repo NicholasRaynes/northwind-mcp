@@ -37,7 +37,7 @@ func GetSupplierPerformance(c *gin.Context) {
 			JOIN categories ca ON p.category_id = ca.category_id
 			JOIN suppliers s ON p.supplier_id = s.supplier_id
 	`
-	args := []interface{}{}
+	args := []any{}
 	if year != "" {
 		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $" + strconv.Itoa(len(args)+1)
 		args = append(args, year)
