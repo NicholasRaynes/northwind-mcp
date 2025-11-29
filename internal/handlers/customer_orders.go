@@ -21,7 +21,7 @@ func GetCustomerOrders(c *gin.Context) {
 			o.order_id,
 			TO_CHAR(o.order_date, 'YYYY-MM-DD') AS order_date,
 			SUM(od.unit_price * od.quantity * (1 - od.discount)) AS total_amount,
-			TO_CHAR(o.shipped_date, 'YYYY-MM-DD') AS shipped_date,
+			COALESCE(TO_CHAR(o.shipped_date, 'YYYY-MM-DD'), '') AS shipped_date,
 			c.country
 		FROM order_details od
 		JOIN orders o ON od.order_id = o.order_id

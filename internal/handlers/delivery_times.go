@@ -36,8 +36,14 @@ func GetDeliveryTimes(c *gin.Context) {
 
 	args := []any{}
 	if year != "" {
-		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $" + strconv.Itoa(len(args)+1)
-		args = append(args, year)
+		yearInt, err := strconv.Atoi(year)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year parameter"})
+			return
+		}
+		args = append(args, yearInt)
+
+		query += " WHERE EXTRACT(YEAR FROM o.order_date)::int = $" + strconv.Itoa(len(args))
 	}
 
 	query += `
