@@ -392,24 +392,6 @@
           }
         }
       }
-    },
-    "/analytics/delivery-times": {
-      "get": {
-        "tags": ["Analytics", "Performance", "Orders"],
-        "operationId": "getDeliveryTimes",
-        "summary": "Delivery Times",
-        "description": "Average delivery days, late shipments, and on-time rate by shipper or employee.",
-        "parameters": [
-          { "name": "group", "in": "query", "schema": { "type": "string" }, "description": "Filter by group" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Delivery performance metrics.",
-            "content": { "application/json": { "example": [{ "shipper": "Speedy Express", "avg_days": 3.5, "on_time_rate": 0.92 }] } }
-          }
-        }
-      }
     }
   },
   "components": {}
