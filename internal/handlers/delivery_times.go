@@ -35,6 +35,10 @@ func GetDeliveryTimes(c *gin.Context) {
 		` + joinClause
 
 	args := []any{}
+	where := []string{}
+
+	where = append(where, "o.shipped_date IS NOT NULL")
+
 	if year != "" {
 		yearInt, err := strconv.Atoi(year)
 		if err != nil {
@@ -42,8 +46,18 @@ func GetDeliveryTimes(c *gin.Context) {
 			return
 		}
 		args = append(args, yearInt)
+		where = append(where, "EXTRACT(YEAR FROM o.order_date)::int = $"+strconv.Itoa(len(args)))
+	}
 
-		query += " WHERE EXTRACT(YEAR FROM o.order_date)::int = $" + strconv.Itoa(len(args))
+	if len(where) > 0 {
+		query += " WHERE "
+
+		for i, condition := range where {
+			if i > 0 {
+				query += " AND "
+			}
+			query += condition
+		}
 	}
 
 	query += `
