@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"strings" // Added strings package import
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
@@ -35,7 +35,7 @@ func GetTopCustomers(c *gin.Context) {
 	conditions := []string{}
 
 	if country != "" {
-		conditions = append(conditions, fmt.Sprintf("c.country = $%d", len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.country) LIKE LOWER($%d)", len(args)+1))
 		args = append(args, country)
 	}
 	if year != "" {

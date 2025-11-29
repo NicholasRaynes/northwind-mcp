@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"fmt" // Added for consistency with other files
+	"fmt"
 	"net/http"
-	"strings" // Added for string joining
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
