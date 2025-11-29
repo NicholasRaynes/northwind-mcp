@@ -30,7 +30,15 @@
         "responses": {
           "200": {
             "description": "Server health status.",
-            "content": { "application/json": { "example": { "status": "ok", "message": "Northwind MCP server is running!" } } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {},
+                  "status": "ok",
+                  "message": "Northwind MCP server is running!"
+                }
+              }
+            }
           }
         }
       }
@@ -42,18 +50,31 @@
         "summary": "Get Customers",
         "description": "Retrieve all customers, including company names, cities, and contact details.",
         "parameters": [
-          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by order year" },
+          { "name": "id", "in": "query", "schema": { "type": "string" }, "description": "Filter by exact customer ID" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
           { "name": "city", "in": "query", "schema": { "type": "string" }, "description": "Filter by city" },
-          { "name": "id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID (partial match)" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" },
+          { "name": "contact_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact name" },
+          { "name": "contact_title", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact title" },
+          { "name": "address", "in": "query", "schema": { "type": "string" }, "description": "Filter by address" },
+          { "name": "region", "in": "query", "schema": { "type": "string" }, "description": "Filter by region" },
+          { "name": "postal_code", "in": "query", "schema": { "type": "string" }, "description": "Filter by postal code" },
+          { "name": "phone", "in": "query", "schema": { "type": "string" }, "description": "Filter by phone" },
+          { "name": "fax", "in": "query", "schema": { "type": "string" }, "description": "Filter by fax" }
         ],
         "responses": {
           "200": {
             "description": "List of customers.",
             "content": {
               "application/json": {
-                "example": [
-                  { "customer_id": "ALFKI", "company_name": "Alfreds Futterkiste", "city": "Berlin", "country": "Germany" }
-                ]
+                "example": {
+                  "filters": { "country": "Germany", "city": "Berlin" },
+                  "count": 1,
+                  "data": [
+                    { "customer_id": "ALFKI", "company_name": "Alfreds Futterkiste", "city": "Berlin", "country": "Germany" }
+                  ]
+                }
               }
             }
           }
@@ -67,15 +88,44 @@
         "summary": "Get Orders",
         "description": "Retrieve all orders with customer, employee, shipper, and date information.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order year" },
           { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
           { "name": "employee", "in": "query", "schema": { "type": "string" }, "description": "Filter by employee" },
-          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer country" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order year" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship country" },
+          { "name": "order_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by order ID" },
+          { "name": "customer_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer name" },
+          { "name": "employee_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by employee name" },
+          { "name": "order_date", "in": "query", "schema": { "type": "string" }, "description": "Filter by order date" },
+          { "name": "required_date", "in": "query", "schema": { "type": "string" }, "description": "Filter by required date" },
+          { "name": "shipped_date", "in": "query", "schema": { "type": "string" }, "description": "Filter by shipped date" },
+          { "name": "ship_via", "in": "query", "schema": { "type": "string" }, "description": "Filter by shipper ID" },
+          { "name": "shipper_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by shipper name" },
+          { "name": "ship_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship name" },
+          { "name": "ship_address", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship address" },
+          { "name": "ship_city", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship city" },
+          { "name": "ship_region", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship region" },
+          { "name": "ship_postal_code", "in": "query", "schema": { "type": "string" }, "description": "Filter by ship postal code" }
         ],
         "responses": {
           "200": {
             "description": "List of orders.",
-            "content": { "application/json": { "example": [{ "order_id": 10248, "customer_id": "VINET", "order_date": "1996-07-04" }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1996
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "order_id": 10248,
+                      "customer_id": "VINET",
+                      "order_date": "1996-07-04"
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -88,15 +138,32 @@
         "description": "Retrieve product-level order details including quantity, price, and discounts.",
         "parameters": [
           { "name": "order_id", "in": "query", "schema": { "type": "integer" }, "description": "Filter by order ID" },
-          { "name": "product", "in": "query", "schema": { "type": "string" }, "description": "Filter by product" },
-          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" }
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "product_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by product ID" },
+          { "name": "product_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" },
+          { "name": "category_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by category name" },
+          { "name": "supplier_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier name" }
         ],
         "responses": {
           "200": {
             "description": "Order details list.",
             "content": {
               "application/json": {
-                "example": [{ "order_id": 10248, "product_id": 11, "unit_price": 14.0, "quantity": 12, "discount": 0.0 }]
+                "example": {
+                  "filters": {
+                    "order_id": "10248"
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "order_id": 10248,
+                      "product_id": 11,
+                      "unit_price": 14.0,
+                      "quantity": 12,
+                      "discount": 0.0
+                    }
+                  ]
+                }
               }
             }
           }
@@ -110,16 +177,34 @@
         "summary": "Get Products",
         "description": "Retrieve products with supplier, category, price, and stock information.",
         "parameters": [
-          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" },
-          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" },
-          { "name": "name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" }
+          { "name": "product_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by product ID" },
+          { "name": "product_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" },
+          { "name": "supplier_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier ID" },
+          { "name": "supplier_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier name" },
+          { "name": "category_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by category ID" },
+          { "name": "category_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by category name" },
+          { "name": "discontinued", "in": "query", "schema": { "type": "string" }, "description": "Filter by discontinued status" }
         ],
         "responses": {
           "200": {
             "description": "List of products.",
             "content": {
               "application/json": {
-                "example": [{ "product_id": 1, "product_name": "Chai", "category": "Beverages", "unit_price": 18.0, "units_in_stock": 39 }]
+                "example": {
+                  "filters": {
+                    "category_name": "Beverages"
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "product_id": 1,
+                      "product_name": "Chai",
+                      "category": "Beverages",
+                      "unit_price": 18.0,
+                      "units_in_stock": 39
+                    }
+                  ]
+                }
               }
             }
           }
@@ -134,14 +219,33 @@
         "description": "Retrieve all supplier information, including contact details and country.",
         "parameters": [
           { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
-          { "name": "company", "in": "query", "schema": { "type": "string" }, "description": "Filter by company" }
+          { "name": "supplier_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" },
+          { "name": "contact_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact name" },
+          { "name": "contact_title", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact title" },
+          { "name": "city", "in": "query", "schema": { "type": "string" }, "description": "Filter by city" },
+          { "name": "phone", "in": "query", "schema": { "type": "string" }, "description": "Filter by phone" },
+          { "name": "fax", "in": "query", "schema": { "type": "string" }, "description": "Filter by fax" }
         ],
         "responses": {
           "200": {
             "description": "List of suppliers.",
             "content": {
               "application/json": {
-                "example": [{ "supplier_id": 1, "company_name": "Exotic Liquids", "country": "UK", "contact_name": "Charlotte Cooper" }]
+                "example": {
+                  "filters": {
+                    "country": "UK"
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "supplier_id": 1,
+                      "company_name": "Exotic Liquids",
+                      "country": "UK",
+                      "contact_name": "Charlotte Cooper"
+                    }
+                  ]
+                }
               }
             }
           }
@@ -155,12 +259,28 @@
         "summary": "Sales by Country",
         "description": "Aggregate total sales grouped by customer country.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" }
         ],
         "responses": {
           "200": {
             "description": "Sales totals by country.",
-            "content": { "application/json": { "example": [{ "country": "USA", "total_sales": 12345.67 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "country": "USA",
+                      "total_sales": 12345.67
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -172,12 +292,28 @@
         "summary": "Sales by Category",
         "description": "Total revenue aggregated by product category.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "category_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by category name" }
         ],
         "responses": {
           "200": {
             "description": "Sales totals by category.",
-            "content": { "application/json": { "example": [{ "category": "Beverages", "total_sales": 23456.78 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "category": "Beverages",
+                      "total_sales": 23456.78
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -189,12 +325,28 @@
         "summary": "Sales by Employee",
         "description": "Total sales and order counts grouped by employee.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "employee_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by employee name" }
         ],
         "responses": {
           "200": {
             "description": "Sales totals by employee.",
-            "content": { "application/json": { "example": [{ "employee": "Nancy Davolio", "total_sales": 89000.5 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "employee": "Nancy Davolio",
+                      "total_sales": 89000.5
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -208,7 +360,20 @@
         "responses": {
           "200": {
             "description": "Yearly sales summary.",
-            "content": { "application/json": { "example": [{ "year": 1997, "total_sales": 345678.9 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {},
+                  "count": 5,
+                  "data": [
+                    {
+                      "year": 1997,
+                      "total_sales": 345678.9
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -220,12 +385,28 @@
         "summary": "Sales by Shipper",
         "description": "Total sales grouped by freight company.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" }
         ],
         "responses": {
           "200": {
             "description": "Sales totals by shipper.",
-            "content": { "application/json": { "example": [{ "shipper": "Speedy Express", "total_sales": 56789.12 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "shipper": "Speedy Express",
+                      "total_sales": 56789.12
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -237,14 +418,30 @@
         "summary": "Top Customers",
         "description": "Retrieve top customers ranked by total revenue.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
           { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" }
         ],
         "responses": {
           "200": {
             "description": "Top customers list.",
-            "content": { "application/json": { "example": [{ "customer": "Alfreds Futterkiste", "total_sales": 50000 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "customer": "Alfreds Futterkiste",
+                      "total_sales": 50000
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -257,12 +454,32 @@
         "description": "Detailed order history per customer.",
         "parameters": [
           { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "order_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by order ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" },
+          { "name": "order_date", "in": "query", "schema": { "type": "string" }, "description": "Filter by order date" },
+          { "name": "shipped_date", "in": "query", "schema": { "type": "string" }, "description": "Filter by shipped date" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" }
         ],
         "responses": {
           "200": {
             "description": "Customer order details.",
-            "content": { "application/json": { "example": [{ "customer_id": "VINET", "orders": 15 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "customer_id": "VINET"
+                  },
+                  "count": 5,
+                  "data": [
+                    {
+                      "customer_id": "VINET",
+                      "orders": 15
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -274,13 +491,29 @@
         "summary": "Customer Lifetime Value",
         "description": "Total lifetime revenue per customer.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
-          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" }
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" }
         ],
         "responses": {
           "200": {
             "description": "LTV data.",
-            "content": { "application/json": { "example": [{ "customer": "Around the Horn", "ltv": 45000 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "country": "USA"
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "customer": "Around the Horn",
+                      "ltv": 45000
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -292,12 +525,35 @@
         "summary": "Customer Retention",
         "description": "Measures repeat customers and retention rates.",
         "parameters": [
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
+          { "name": "repeat_customer", "in": "query", "schema": { "type": "string" }, "description": "Filter by repeat customer status" }
         ],
         "responses": {
           "200": {
             "description": "Retention metrics.",
-            "content": { "application/json": { "example": [{ "year": 1998, "retention_rate": 0.82 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1998,
+                    "repeat_customer": "true",
+                    "total_customers": 50,
+                    "repeat_customers": 41,
+                    "retention_rate": 0.82
+                  },
+                  "count": 41,
+                  "data": [
+                    {
+                      "year": 1998,
+                      "retention_rate": 0.82
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -309,14 +565,31 @@
         "summary": "Top Products",
         "description": "Top-selling products by total revenue and units sold.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
-          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "product_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by product ID" },
+          { "name": "product_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" },
+          { "name": "category_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by category name" },
+          { "name": "supplier_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier name" }
         ],
         "responses": {
           "200": {
             "description": "Top products data.",
-            "content": { "application/json": { "example": [{ "product": "Chai", "sales": 20000.5 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "product": "Chai",
+                      "sales": 20000.5
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -328,13 +601,31 @@
         "summary": "Supplier Performance",
         "description": "Supplier contribution by revenue and efficiency.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "supplier_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier ID" },
+          { "name": "supplier_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier name" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
+          { "name": "top_category", "in": "query", "schema": { "type": "string" }, "description": "Filter by top category" }
         ],
         "responses": {
           "200": {
             "description": "Supplier performance list.",
-            "content": { "application/json": { "example": [{ "supplier": "Exotic Liquids", "sales": 12345.67 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "supplier": "Exotic Liquids",
+                      "sales": 12345.67
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -346,13 +637,33 @@
         "summary": "Inventory Status",
         "description": "Product stock levels, reorder needs, and discontinued items.",
         "parameters": [
-          { "name": "supplier", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier" },
-          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category" }
+          { "name": "product_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by product ID" },
+          { "name": "product_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by product name" },
+          { "name": "supplier_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by supplier name" },
+          { "name": "category_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by category name" },
+          { "name": "discontinued", "in": "query", "schema": { "type": "string" }, "description": "Filter by discontinued status" },
+          { "name": "needs_reorder", "in": "query", "schema": { "type": "string" }, "description": "Filter by reorder status" }
         ],
         "responses": {
           "200": {
             "description": "Inventory overview.",
-            "content": { "application/json": { "example": [{ "product": "Chai", "units_in_stock": 39, "discontinued": false }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "category_name": "Beverages"
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "product": "Chai",
+                      "units_in_stock": 39,
+                      "discontinued": false
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -364,13 +675,31 @@
         "summary": "Employee Performance",
         "description": "Rank employees by sales totals and order count.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "employee_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by employee ID" },
+          { "name": "full_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by full name" },
+          { "name": "title", "in": "query", "schema": { "type": "string" }, "description": "Filter by job title" },
+          { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" }
         ],
         "responses": {
           "200": {
             "description": "Employee performance list.",
-            "content": { "application/json": { "example": [{ "employee": "Nancy Davolio", "total_sales": 89000.5 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "employee": "Nancy Davolio",
+                      "total_sales": 89000.5
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -382,13 +711,29 @@
         "summary": "Shipping Costs",
         "description": "Freight cost and order volume per shipping company.",
         "parameters": [
-          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "description": "Filter by limit" },
-          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" }
+          { "name": "year", "in": "query", "schema": { "type": "integer" }, "description": "Filter by year" },
+          { "name": "shipper_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by shipper ID" },
+          { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" }
         ],
         "responses": {
           "200": {
             "description": "Shipping cost data.",
-            "content": { "application/json": { "example": [{ "shipper": "United Package", "total_freight": 12000 }] } }
+            "content": {
+              "application/json": {
+                "example": {
+                  "filters": {
+                    "year": 1997
+                  },
+                  "count": 1,
+                  "data": [
+                    {
+                      "shipper": "United Package",
+                      "total_freight": 12000
+                    }
+                  ]
+                }
+              }
+            }
           }
         }
       }
