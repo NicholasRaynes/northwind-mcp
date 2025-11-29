@@ -11,11 +11,20 @@ import (
 )
 
 // GET /customers
-// Optional filters: ?country=Brazil&city=London&id=ALFKI
+// Optional parameters: country, city, id, customer_id, company_name, contact_name, contact_title, address, region, postal_code, phone, fax
 func GetCustomers(c *gin.Context) {
 	country := c.Query("country")
 	city := c.Query("city")
 	id := c.Query("id")
+	customerID := c.Query("customer_id")
+	companyName := c.Query("company_name")
+	contactName := c.Query("contact_name")
+	contactTitle := c.Query("contact_title")
+	address := c.Query("address")
+	region := c.Query("region")
+	postalCode := c.Query("postal_code")
+	phone := c.Query("phone")
+	fax := c.Query("fax")
 
 	// Base query
 	query := `
@@ -26,9 +35,8 @@ func GetCustomers(c *gin.Context) {
 	conditions := []string{}
 	args := []any{}
 
-	// Apply filters dynamically
 	if id != "" {
-		conditions = append(conditions, "LOWER(customer_id) = LOWER($1)")
+		conditions = append(conditions, fmt.Sprintf("LOWER(customer_id) = LOWER($%d)", len(args)+1))
 		args = append(args, id)
 	}
 	if country != "" {
@@ -38,6 +46,42 @@ func GetCustomers(c *gin.Context) {
 	if city != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(city) = LOWER($%d)", len(args)+1))
 		args = append(args, city)
+	}
+	if customerID != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(customer_id) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+customerID+"%")
+	}
+	if companyName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+companyName+"%")
+	}
+	if contactName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(contact_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+contactName+"%")
+	}
+	if contactTitle != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(contact_title) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+contactTitle+"%")
+	}
+	if address != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(address) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+address+"%")
+	}
+	if region != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(region) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+region+"%")
+	}
+	if postalCode != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(postal_code) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+postalCode+"%")
+	}
+	if phone != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(phone) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+phone+"%")
+	}
+	if fax != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(fax) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+fax+"%")
 	}
 
 	if len(conditions) > 0 {
@@ -77,8 +121,47 @@ func GetCustomers(c *gin.Context) {
 		customers = append(customers, cust)
 	}
 
+	filters := gin.H{}
+	if id != "" {
+		filters["id"] = id
+	}
+	if country != "" {
+		filters["country"] = country
+	}
+	if city != "" {
+		filters["city"] = city
+	}
+	if customerID != "" {
+		filters["customer_id"] = customerID
+	}
+	if companyName != "" {
+		filters["company_name"] = companyName
+	}
+	if contactName != "" {
+		filters["contact_name"] = contactName
+	}
+	if contactTitle != "" {
+		filters["contact_title"] = contactTitle
+	}
+	if address != "" {
+		filters["address"] = address
+	}
+	if region != "" {
+		filters["region"] = region
+	}
+	if postalCode != "" {
+		filters["postal_code"] = postalCode
+	}
+	if phone != "" {
+		filters["phone"] = phone
+	}
+	if fax != "" {
+		filters["fax"] = fax
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"count": len(customers),
-		"data":  customers,
+		"filters": filters,
+		"count":   len(customers),
+		"data":    customers,
 	})
 }

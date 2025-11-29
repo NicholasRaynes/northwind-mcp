@@ -1,23 +1,23 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/employee-performance?limit=10&year=1997
+// GET /analytics/employee-performance
+// Optional parameters: year, employee_id, full_name, title, country
 func GetEmployeePerformance(c *gin.Context) {
-	limit := 10
-	if l := c.Query("limit"); l != "" {
-		if val, err := strconv.Atoi(l); err == nil {
-			limit = val
-		}
-	}
 	year := c.Query("year")
+	employeeID := c.Query("employee_id")
+	fullName := c.Query("full_name")
+	job_title := c.Query("title")
+	country := c.Query("country")
 
 	query := `
 		SELECT
@@ -34,15 +34,37 @@ func GetEmployeePerformance(c *gin.Context) {
 	`
 
 	args := []any{}
+	conditions := []string{}
+
 	if year != "" {
-		query += " WHERE EXTRACT(YEAR FROM o.order_date) = $" + strconv.Itoa(len(args)+1)
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(YEAR FROM o.order_date)::TEXT = $%d", len(args)+1))
 		args = append(args, year)
+	}
+	if employeeID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(e.employee_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+employeeID+"%")
+	}
+	if fullName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(e.first_name || ' ' || e.last_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+fullName+"%")
+	}
+	if job_title != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(e.title) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+job_title+"%")
+	}
+	if country != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(e.country) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+country+"%")
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += `
 		GROUP BY e.employee_id, e.first_name, e.last_name, e.title, e.country
 		ORDER BY total_revenue DESC
-		LIMIT ` + strconv.Itoa(limit)
+	`
 
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -69,9 +91,26 @@ func GetEmployeePerformance(c *gin.Context) {
 		results = append(results, emp)
 	}
 
+	filters := gin.H{}
+	if year != "" {
+		filters["year"] = year
+	}
+	if employeeID != "" {
+		filters["employee_id"] = employeeID
+	}
+	if fullName != "" {
+		filters["full_name"] = fullName
+	}
+	if job_title != "" {
+		filters["title"] = job_title
+	}
+	if country != "" {
+		filters["country"] = country
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"year":  year,
-		"count": len(results),
-		"data":  results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }

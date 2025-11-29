@@ -12,13 +12,16 @@ import (
 func GetSalesByYear(c *gin.Context) {
 	query := `
 		SELECT
-			EXTRACT(YEAR FROM o.order_date)::text AS group_key,
+			EXTRACT(YEAR FROM o.order_date)::text AS year,
 			SUM(od.unit_price * od.quantity * (1 - od.discount)) AS total_sales,
 			COUNT(DISTINCT o.order_id) AS order_count
 		FROM order_details od
 		JOIN orders o ON od.order_id = o.order_id
-		GROUP BY group_key
-		ORDER BY group_key
+	`
+
+	query += `
+		GROUP BY year
+		ORDER BY year
 	`
 
 	rows, err := db.DB.Query(query)
@@ -39,7 +42,8 @@ func GetSalesByYear(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"count": len(results),
-		"data":  results,
+		"filters": gin.H{},
+		"count":   len(results),
+		"data":    results,
 	})
 }

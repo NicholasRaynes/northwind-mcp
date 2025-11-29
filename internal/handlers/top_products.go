@@ -1,24 +1,23 @@
 package handlers
 
 import (
+	"fmt" // Added for consistency with other files
 	"net/http"
-	"strconv"
+	"strings" // Added for string joining
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/top-products?limit=10&year=1997&category=Beverages
+// GET /analytics/top-products
+// Optional parameters: year, product_id, product_name, category_name, supplier_name
 func GetTopProducts(c *gin.Context) {
-	limit := 10
-	if l := c.Query("limit"); l != "" {
-		if val, err := strconv.Atoi(l); err == nil {
-			limit = val
-		}
-	}
 	year := c.Query("year")
-	category := c.Query("category")
+	productID := c.Query("product_id")
+	productName := c.Query("product_name")
+	categoryName := c.Query("category_name")
+	supplierName := c.Query("supplier_name")
 
 	query := `
 		SELECT
@@ -37,25 +36,37 @@ func GetTopProducts(c *gin.Context) {
 	`
 
 	args := []any{}
-	where := []string{}
+	conditions := []string{}
 
 	if year != "" {
-		where = append(where, "EXTRACT(YEAR FROM o.order_date) = $"+strconv.Itoa(len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(YEAR FROM o.order_date)::TEXT = $%d", len(args)+1))
 		args = append(args, year)
 	}
-	if category != "" {
-		where = append(where, "LOWER(ca.category_name) = LOWER($"+strconv.Itoa(len(args)+1)+")")
-		args = append(args, category)
+	if productID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.product_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+productID+"%")
+	}
+	if productName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(p.product_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+productName+"%")
+	}
+	if categoryName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+categoryName+"%")
+	}
+	if supplierName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(s.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+supplierName+"%")
 	}
 
-	if len(where) > 0 {
-		query += " WHERE " + joinConditions(where)
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += `
 		GROUP BY p.product_id, p.product_name, ca.category_name, s.company_name
 		ORDER BY total_revenue DESC
-		LIMIT ` + strconv.Itoa(limit)
+	`
 
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -82,10 +93,26 @@ func GetTopProducts(c *gin.Context) {
 		results = append(results, tp)
 	}
 
+	filters := gin.H{}
+	if year != "" {
+		filters["year"] = year
+	}
+	if productID != "" {
+		filters["product_id"] = productID
+	}
+	if productName != "" {
+		filters["product_name"] = productName
+	}
+	if categoryName != "" {
+		filters["category_name"] = categoryName
+	}
+	if supplierName != "" {
+		filters["supplier_name"] = supplierName
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"year":     year,
-		"category": category,
-		"count":    len(results),
-		"data":     results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }

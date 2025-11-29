@@ -1,20 +1,24 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/inventory-status?below_reorder=true&supplier=Exotic%20Liquids
+// GET /analytics/inventory-status
+// Optional parameters: product_id, product_name, supplier_name, category_name, discontinued, needs_reorder
 func GetInventoryStatus(c *gin.Context) {
-	belowReorder := c.DefaultQuery("below_reorder", "false") == "true"
-	supplier := c.Query("supplier")
-	category := c.Query("category")
-	discontinued := c.DefaultQuery("discontinued", "")
+	productID := c.Query("product_id")
+	productName := c.Query("product_name")
+	supplierName := c.Query("supplier_name")
+	categoryName := c.Query("category_name")
+	discontinued := c.Query("discontinued")
+	needsReorder := c.Query("needs_reorder")
 
 	query := `
 		SELECT
@@ -30,27 +34,37 @@ func GetInventoryStatus(c *gin.Context) {
 		JOIN suppliers s ON p.supplier_id = s.supplier_id
 		JOIN categories ca ON p.category_id = ca.category_id
 	`
-	args := []any{}
-	where := []string{}
 
-	if belowReorder {
-		where = append(where, "p.units_in_stock <= p.reorder_level")
+	args := []any{}
+	conditions := []string{}
+
+	if productID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.product_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+productID+"%")
 	}
-	if supplier != "" {
-		where = append(where, "LOWER(s.company_name) LIKE LOWER($"+strconv.Itoa(len(args)+1)+")")
-		args = append(args, "%"+supplier+"%")
+	if productName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(p.product_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+productName+"%")
 	}
-	if category != "" {
-		where = append(where, "LOWER(ca.category_name) LIKE LOWER($"+strconv.Itoa(len(args)+1)+")")
-		args = append(args, "%"+category+"%")
+	if supplierName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(s.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+supplierName+"%")
+	}
+	if categoryName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+categoryName+"%")
 	}
 	if discontinued != "" {
-		where = append(where, "p.discontinued = $"+strconv.Itoa(len(args)+1))
-		args = append(args, discontinued == "true")
+		conditions = append(conditions, fmt.Sprintf("CAST(p.discontinued AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+discontinued+"%")
+	}
+	if needsReorder != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(CASE WHEN p.units_in_stock <= p.reorder_level THEN true ELSE false END AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+needsReorder+"%")
 	}
 
-	if len(where) > 0 {
-		query += " WHERE " + joinConditions(where)
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += `
@@ -83,11 +97,29 @@ func GetInventoryStatus(c *gin.Context) {
 		results = append(results, inv)
 	}
 
+	filters := gin.H{}
+	if productID != "" {
+		filters["product_id"] = productID
+	}
+	if productName != "" {
+		filters["product_name"] = productName
+	}
+	if supplierName != "" {
+		filters["supplier_name"] = supplierName
+	}
+	if categoryName != "" {
+		filters["category_name"] = categoryName
+	}
+	if discontinued != "" {
+		filters["discontinued"] = discontinued
+	}
+	if needsReorder != "" {
+		filters["needs_reorder"] = needsReorder
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"below_reorder": belowReorder,
-		"supplier":      supplier,
-		"category":      category,
-		"count":         len(results),
-		"data":          results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }

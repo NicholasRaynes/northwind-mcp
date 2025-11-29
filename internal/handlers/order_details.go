@@ -11,11 +11,14 @@ import (
 )
 
 // GET /orders/details
-// Optional filters: ?order_id=10248&product=Chai&customer_id=ALFKI
+// Optional filters: order_id, customer_id, product_id, product_name, category_name, supplier_name
 func GetOrderDetails(c *gin.Context) {
 	orderID := c.Query("order_id")
-	product := c.Query("product")
 	customerID := c.Query("customer_id")
+	productID := c.Query("product_id")
+	productName := c.Query("product_name")
+	categoryName := c.Query("category_name")
+	supplierName := c.Query("supplier_name")
 
 	query := `
 		SELECT
@@ -34,6 +37,7 @@ func GetOrderDetails(c *gin.Context) {
 		JOIN suppliers s ON p.supplier_id = s.supplier_id
 		JOIN orders o ON od.order_id = o.order_id
 	`
+
 	conditions := []string{}
 	args := []any{}
 
@@ -41,13 +45,25 @@ func GetOrderDetails(c *gin.Context) {
 		conditions = append(conditions, fmt.Sprintf("od.order_id = $%d", len(args)+1))
 		args = append(args, orderID)
 	}
-	if product != "" {
-		conditions = append(conditions, fmt.Sprintf("LOWER(p.product_name) LIKE LOWER($%d)", len(args)+1))
-		args = append(args, "%"+product+"%")
-	}
 	if customerID != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(o.customer_id) = LOWER($%d)", len(args)+1))
 		args = append(args, customerID)
+	}
+	if productID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.product_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+productID+"%")
+	}
+	if productName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(p.product_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+productName+"%")
+	}
+	if categoryName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+categoryName+"%")
+	}
+	if supplierName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(s.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+supplierName+"%")
 	}
 
 	if len(conditions) > 0 {
@@ -84,8 +100,29 @@ func GetOrderDetails(c *gin.Context) {
 		results = append(results, d)
 	}
 
+	filters := gin.H{}
+	if orderID != "" {
+		filters["order_id"] = orderID
+	}
+	if customerID != "" {
+		filters["customer_id"] = customerID
+	}
+	if productID != "" {
+		filters["product_id"] = productID
+	}
+	if productName != "" {
+		filters["product_name"] = productName
+	}
+	if categoryName != "" {
+		filters["category_name"] = categoryName
+	}
+	if supplierName != "" {
+		filters["supplier_name"] = supplierName
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"count": len(results),
-		"data":  results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }

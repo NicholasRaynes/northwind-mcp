@@ -1,24 +1,29 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/shipping-costs?year=1997&limit=10
+// GET /analytics/shipping-costs
+// Optional parameters: year, shipper_id, company_name
 func GetShippingCosts(c *gin.Context) {
-	limit := 10
-	if l := c.Query("limit"); l != "" {
-		if val, err := strconv.Atoi(l); err == nil {
-			limit = val
-		}
-	}
-
 	year := c.Query("year")
+	shipperID := c.Query("shipper_id")
+	companyName := c.Query("company_name")
+
+	args := []any{}
+	cteConditions := []string{}
+
+	if year != "" {
+		cteConditions = append(cteConditions, fmt.Sprintf("EXTRACT(YEAR FROM o.order_date)::TEXT = $%d", len(args)+1))
+		args = append(args, year)
+	}
 
 	query := `
 		WITH shipper_orders AS (
@@ -31,13 +36,10 @@ func GetShippingCosts(c *gin.Context) {
 			FROM orders o
 			JOIN shippers s ON o.ship_via = s.shipper_id
 			JOIN customers c ON c.customer_id = o.customer_id
-			WHERE 1=1
-`
+	`
 
-	args := []any{}
-	if year != "" {
-		args = append(args, year)
-		query += " AND EXTRACT(YEAR FROM o.order_date) = $" + strconv.Itoa(len(args))
+	if len(cteConditions) > 0 {
+		query += " WHERE " + strings.Join(cteConditions, " AND ")
 	}
 
 	query += `
@@ -76,8 +78,24 @@ func GetShippingCosts(c *gin.Context) {
 			td.top_destination
 		FROM shipper_stats ss
 		LEFT JOIN top_destinations td ON ss.shipper_id = td.shipper_id
-		ORDER BY ss.total_freight DESC
-		LIMIT ` + strconv.Itoa(limit)
+	`
+
+	finalConditions := []string{}
+
+	if shipperID != "" {
+		finalConditions = append(finalConditions, fmt.Sprintf("CAST(ss.shipper_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+shipperID+"%")
+	}
+	if companyName != "" {
+		finalConditions = append(finalConditions, fmt.Sprintf("LOWER(ss.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+companyName+"%")
+	}
+
+	if len(finalConditions) > 0 {
+		query += " WHERE " + strings.Join(finalConditions, " AND ")
+	}
+
+	query += " ORDER BY ss.total_freight DESC"
 
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -104,9 +122,20 @@ func GetShippingCosts(c *gin.Context) {
 		results = append(results, sc)
 	}
 
+	filters := gin.H{}
+	if year != "" {
+		filters["year"] = year
+	}
+	if shipperID != "" {
+		filters["shipper_id"] = shipperID
+	}
+	if companyName != "" {
+		filters["company_name"] = companyName
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"year":  year,
-		"count": len(results),
-		"data":  results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }

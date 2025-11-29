@@ -11,11 +11,15 @@ import (
 )
 
 // GET /products
-// Optional filters: ?category=Beverages&supplier=Exotic
+// Optional parameters: product_id, product_name, supplier_id, supplier_name, category_id, category_name, discontinued
 func GetProducts(c *gin.Context) {
-	category := c.Query("category")
-	supplier := c.Query("supplier")
-	name := c.Query("name")
+	productID := c.Query("product_id")
+	productName := c.Query("product_name")
+	supplierID := c.Query("supplier_id")
+	supplierName := c.Query("supplier_name")
+	categoryID := c.Query("category_id")
+	categoryName := c.Query("category_name")
+	discontinued := c.Query("discontinued")
 
 	query := `
 		SELECT
@@ -33,20 +37,37 @@ func GetProducts(c *gin.Context) {
 		JOIN suppliers s ON p.supplier_id = s.supplier_id
 		JOIN categories ca ON p.category_id = ca.category_id
 	`
+
 	conditions := []string{}
 	args := []any{}
 
-	if category != "" {
-		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))
-		args = append(args, "%"+category+"%")
+	if productID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.product_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+productID+"%")
 	}
-	if supplier != "" {
-		conditions = append(conditions, fmt.Sprintf("LOWER(s.company_name) LIKE LOWER($%d)", len(args)+1))
-		args = append(args, "%"+supplier+"%")
-	}
-	if name != "" {
+	if productName != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(p.product_name) LIKE LOWER($%d)", len(args)+1))
-		args = append(args, "%"+name+"%")
+		args = append(args, "%"+productName+"%")
+	}
+	if supplierID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.supplier_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+supplierID+"%")
+	}
+	if supplierName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(s.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+supplierName+"%")
+	}
+	if categoryID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.category_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+categoryID+"%")
+	}
+	if categoryName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(ca.category_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+categoryName+"%")
+	}
+	if discontinued != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(p.discontinued AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+discontinued+"%")
 	}
 
 	if len(conditions) > 0 {
@@ -84,5 +105,32 @@ func GetProducts(c *gin.Context) {
 		products = append(products, p)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"count": len(products), "data": products})
+	filters := gin.H{}
+	if productID != "" {
+		filters["product_id"] = productID
+	}
+	if productName != "" {
+		filters["product_name"] = productName
+	}
+	if supplierID != "" {
+		filters["supplier_id"] = supplierID
+	}
+	if supplierName != "" {
+		filters["supplier_name"] = supplierName
+	}
+	if categoryID != "" {
+		filters["category_id"] = categoryID
+	}
+	if categoryName != "" {
+		filters["category_name"] = categoryName
+	}
+	if discontinued != "" {
+		filters["discontinued"] = discontinued
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"filters": filters,
+		"count":   len(products),
+		"data":    products,
+	})
 }

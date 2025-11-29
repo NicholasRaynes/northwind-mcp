@@ -1,23 +1,21 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/customer-ltv?limit=10&country=Germany
+// GET /analytics/customer-ltv
+// Optional parameters: country, customer_id, company_name
 func GetCustomerLTV(c *gin.Context) {
-	limit := 10
-	if l := c.Query("limit"); l != "" {
-		if val, err := strconv.Atoi(l); err == nil {
-			limit = val
-		}
-	}
 	country := c.Query("country")
+	customerID := c.Query("customer_id")
+	companyName := c.Query("company_name")
 
 	query := `
 		SELECT
@@ -33,15 +31,31 @@ func GetCustomerLTV(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 		JOIN customers c ON o.customer_id = c.customer_id
 	`
+
 	args := []any{}
+	conditions := []string{}
+
 	if country != "" {
-		query += " WHERE c.country = $1"
+		conditions = append(conditions, fmt.Sprintf("c.country = $%d", len(args)+1))
 		args = append(args, country)
 	}
+	if customerID != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.customer_id) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+customerID+"%")
+	}
+	if companyName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+companyName+"%")
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
 	query += `
 		GROUP BY c.customer_id, c.company_name, c.country
 		ORDER BY total_sales DESC
-		LIMIT ` + strconv.Itoa(limit)
+	`
 
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -69,8 +83,19 @@ func GetCustomerLTV(c *gin.Context) {
 		results = append(results, cl)
 	}
 
+	filters := gin.H{}
+	if country != "" {
+		filters["country"] = country
+	}
+	if customerID != "" {
+		filters["customer_id"] = customerID
+	}
+	if companyName != "" {
+		filters["company_name"] = companyName
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"country": country,
+		"filters": filters,
 		"count":   len(results),
 		"data":    results,
 	})

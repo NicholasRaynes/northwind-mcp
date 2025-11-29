@@ -1,24 +1,22 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings" // Added strings package import
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/top-customers?limit=10&country=USA&year=1997
+// GET /analytics/top-customers
+// Optional parameters: country, year, customer_id, company_name
 func GetTopCustomers(c *gin.Context) {
-	limit := 10
-	if l := c.Query("limit"); l != "" {
-		if val, err := strconv.Atoi(l); err == nil {
-			limit = val
-		}
-	}
 	country := c.Query("country")
 	year := c.Query("year")
+	customerID := c.Query("customer_id")
+	companyName := c.Query("company_name")
 
 	query := `
 		SELECT
@@ -32,26 +30,35 @@ func GetTopCustomers(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 		JOIN customers c ON o.customer_id = c.customer_id
 	`
+
 	args := []any{}
-	where := []string{}
+	conditions := []string{}
 
 	if country != "" {
-		where = append(where, "c.country = $"+strconv.Itoa(len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("c.country = $%d", len(args)+1))
 		args = append(args, country)
 	}
 	if year != "" {
-		where = append(where, "EXTRACT(YEAR FROM o.order_date) = $"+strconv.Itoa(len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(YEAR FROM o.order_date)::TEXT = $%d", len(args)+1))
 		args = append(args, year)
 	}
+	if customerID != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.customer_id) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+customerID+"%")
+	}
+	if companyName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+companyName+"%")
+	}
 
-	if len(where) > 0 {
-		query += " WHERE " + joinConditions(where)
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += `
 		GROUP BY c.customer_id, c.company_name, c.country
 		ORDER BY total_sales DESC
-		LIMIT ` + strconv.Itoa(limit)
+	`
 
 	rows, err := db.DB.Query(query, args...)
 	if err != nil {
@@ -70,19 +77,23 @@ func GetTopCustomers(c *gin.Context) {
 		results = append(results, tc)
 	}
 
+	filters := gin.H{}
+	if year != "" {
+		filters["year"] = year
+	}
+	if country != "" {
+		filters["country"] = country
+	}
+	if customerID != "" {
+		filters["customer_id"] = customerID
+	}
+	if companyName != "" {
+		filters["company_name"] = companyName
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"year":    year,
-		"country": country,
+		"filters": filters,
 		"count":   len(results),
 		"data":    results,
 	})
-}
-
-// helper function to safely join WHERE conditions
-func joinConditions(conds []string) string {
-	query := conds[0]
-	for i := 1; i < len(conds); i++ {
-		query += " AND " + conds[i]
-	}
-	return query
 }

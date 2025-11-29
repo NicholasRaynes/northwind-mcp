@@ -1,18 +1,25 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nicholasraynes/northwind-api/internal/db"
 	"github.com/nicholasraynes/northwind-api/internal/models"
 )
 
-// GET /analytics/customer-orders?customer_id=ALFKI&year=1997
+// GET /analytics/customer-orders
+// Optional parameters: customer_id, year, order_id, company_name, order_date, shipped_date, country
 func GetCustomerOrders(c *gin.Context) {
 	customerID := c.Query("customer_id")
 	year := c.Query("year")
+	orderID := c.Query("order_id")
+	companyName := c.Query("company_name")
+	orderDate := c.Query("order_date")
+	shippedDate := c.Query("shipped_date")
+	country := c.Query("country")
 
 	query := `
 		SELECT
@@ -27,20 +34,41 @@ func GetCustomerOrders(c *gin.Context) {
 		JOIN orders o ON od.order_id = o.order_id
 		JOIN customers c ON o.customer_id = c.customer_id
 	`
+
 	args := []any{}
-	where := []string{}
+	conditions := []string{}
 
 	if customerID != "" {
-		where = append(where, "c.customer_id = $"+strconv.Itoa(len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("c.customer_id = $%d", len(args)+1))
 		args = append(args, customerID)
 	}
 	if year != "" {
-		where = append(where, "EXTRACT(YEAR FROM o.order_date) = $"+strconv.Itoa(len(args)+1))
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(YEAR FROM o.order_date)::TEXT = $%d", len(args)+1))
 		args = append(args, year)
 	}
+	if orderID != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(o.order_id AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+orderID+"%")
+	}
+	if companyName != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.company_name) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+companyName+"%")
+	}
+	if orderDate != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(TO_CHAR(o.order_date, 'YYYY-MM-DD') AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+orderDate+"%")
+	}
+	if shippedDate != "" {
+		conditions = append(conditions, fmt.Sprintf("CAST(COALESCE(TO_CHAR(o.shipped_date, 'YYYY-MM-DD'), '') AS TEXT) LIKE $%d", len(args)+1))
+		args = append(args, "%"+shippedDate+"%")
+	}
+	if country != "" {
+		conditions = append(conditions, fmt.Sprintf("LOWER(c.country) LIKE LOWER($%d)", len(args)+1))
+		args = append(args, "%"+country+"%")
+	}
 
-	if len(where) > 0 {
-		query += " WHERE " + joinConditions(where)
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += `
@@ -73,10 +101,32 @@ func GetCustomerOrders(c *gin.Context) {
 		results = append(results, co)
 	}
 
+	filters := gin.H{}
+	if customerID != "" {
+		filters["customer_id"] = customerID
+	}
+	if year != "" {
+		filters["year"] = year
+	}
+	if orderID != "" {
+		filters["order_id"] = orderID
+	}
+	if companyName != "" {
+		filters["company_name"] = companyName
+	}
+	if orderDate != "" {
+		filters["order_date"] = orderDate
+	}
+	if shippedDate != "" {
+		filters["shipped_date"] = shippedDate
+	}
+	if country != "" {
+		filters["country"] = country
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"customer_id": customerID,
-		"year":        year,
-		"count":       len(results),
-		"data":        results,
+		"filters": filters,
+		"count":   len(results),
+		"data":    results,
 	})
 }
