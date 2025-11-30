@@ -19,10 +19,28 @@ northwind-api/
 ## Example Endpoints
 | Method | Endpoint                    | Description              | Example Parameters               |
 | ------ | --------------------------- | ------------------------ | -------------------------------- |
-| `GET`  | `/customers`                | Retrieve customers       | `country=Germany`, `city=London` |
+| `GET`  | `/customers`                | Retrieve customers       | `country=Germany`, `city=Berlin` |
 | `GET`  | `/orders`                   | Retrieve orders          | `year=1998`, `customer_id=ALFKI` |
 | `GET`  | `/summary/sales-by-country` | Sales by country         | `year=1998`                      |
-| `GET`  | `/analytics/top-customers`  | Top customers by revenue | `limit=10`, `country=USA`        |
+| `GET`  | `/analytics/top-customers`  | Top customers by revenue | `country=USA`                    |
+
+## Example Response Structure `/customers?country=Germany`
+```text
+{
+  "filters": {
+    "country": "Germany"
+  },
+  "count": 1,
+  "data": [
+    {
+      "customer_id": "ALFKI",
+      "company_name": "Alfreds Futterkiste",
+      "city": "Berlin",
+      "country": "Germany"
+    }
+  ]
+}
+```
 
 ## Tech Stack
 - Language: Go 1.23+
