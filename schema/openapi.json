@@ -50,10 +50,9 @@
         "summary": "Get Customers",
         "description": "Retrieve all customers, including company names, cities, and contact details.",
         "parameters": [
-          { "name": "id", "in": "query", "schema": { "type": "string" }, "description": "Filter by exact customer ID" },
           { "name": "country", "in": "query", "schema": { "type": "string" }, "description": "Filter by country" },
           { "name": "city", "in": "query", "schema": { "type": "string" }, "description": "Filter by city" },
-          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID (partial match)" },
+          { "name": "customer_id", "in": "query", "schema": { "type": "string" }, "description": "Filter by customer ID" },
           { "name": "company_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by company name" },
           { "name": "contact_name", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact name" },
           { "name": "contact_title", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact title" },

@@ -11,11 +11,10 @@ import (
 )
 
 // GET /customers
-// Optional parameters: country, city, id, customer_id, company_name, contact_name, contact_title, address, region, postal_code, phone, fax
+// Optional parameters: country, city, customer_id, company_name, contact_name, contact_title, address, region, postal_code, phone, fax
 func GetCustomers(c *gin.Context) {
 	country := c.Query("country")
 	city := c.Query("city")
-	id := c.Query("id")
 	customerID := c.Query("customer_id")
 	companyName := c.Query("company_name")
 	contactName := c.Query("contact_name")
@@ -35,10 +34,6 @@ func GetCustomers(c *gin.Context) {
 	conditions := []string{}
 	args := []any{}
 
-	if id != "" {
-		conditions = append(conditions, fmt.Sprintf("LOWER(customer_id) = LOWER($%d)", len(args)+1))
-		args = append(args, id)
-	}
 	if country != "" {
 		conditions = append(conditions, fmt.Sprintf("LOWER(country) = LOWER($%d)", len(args)+1))
 		args = append(args, country)
@@ -122,9 +117,6 @@ func GetCustomers(c *gin.Context) {
 	}
 
 	filters := gin.H{}
-	if id != "" {
-		filters["id"] = id
-	}
 	if country != "" {
 		filters["country"] = country
 	}
