@@ -35,8 +35,15 @@ northwind-api/
     {
       "customer_id": "ALFKI",
       "company_name": "Alfreds Futterkiste",
+      "contact_name": "Maria Anders",
+      "contact_title": "Sales Representative",
+      "address": "Obere Str. 57",
       "city": "Berlin",
-      "country": "Germany"
+      "region": null,
+      "postal_code": "12209",
+      "country": "Germany",
+      "phone": "030-0074321",
+      "fax": "030-0076545"
     }
   ]
 }
