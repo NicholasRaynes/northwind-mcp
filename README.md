@@ -53,7 +53,7 @@ northwind-api/
 - Language: Go 1.23+
 - Framework: Gin
 - Database: PostgreSQL (via Supabase)
-- Deployment: Azure App Service
+- Deployment: Render Web Services
 
 ## Companion Project
 https://github.com/nicholasraynes/northwind-mcp-layer
